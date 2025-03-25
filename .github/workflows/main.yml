@@ -14,7 +14,7 @@ jobs:
       vsVersion: "latest"
       enableDefaultLogger: true
       restoreNugetArgs: "-NoCache"
-      platform: "Any CPU"  
+      platform: "Any CPU"
       configuration: "Release"
       maxCpu: 8
       clean: true
