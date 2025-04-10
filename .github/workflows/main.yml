@@ -14,7 +14,7 @@ jobs:
       logProjectEvents: true
       vsVersion: "latest"
       enableDefaultLogger: true
-      restoreNugetArgs: "-NoCache"
+      restoreNugetArgs: "-NoHttpcache"
       platform: "Any CPU"
       configuration: "Release"
       maxCpu: 8
