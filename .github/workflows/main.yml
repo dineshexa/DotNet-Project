@@ -10,6 +10,7 @@ jobs:
   build:
     uses: kirandevops1993/VS-BUILD-TASK-REUSABLE-/.github/workflows/vsbuildtask-reusable.yml@main
     with:
+      runsOn: "windows-latest" 
       logProjectEvents: true
       vsVersion: "latest"
       enableDefaultLogger: true
@@ -21,3 +22,4 @@ jobs:
       vsbuildArguments: ""
       createLogFile: true
       logFileVerbosity: "detailed"
+
