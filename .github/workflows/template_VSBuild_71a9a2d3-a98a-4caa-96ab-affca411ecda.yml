@@ -1,0 +1,137 @@
+name: VSBuild Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      runsOn:
+        type: string
+        required: true
+        default: "windows-latest"
+      solution:
+        type: string
+        required: false
+        default: ""
+      vsVersion:
+        type: string
+        required: false
+        default: "latest"
+      platform:
+        type: string
+        required: false
+        default: "Any CPU"
+      configuration:
+        type: string
+        required: false
+        default: "Release"
+      msbuildArgs:
+        type: string
+        required: false
+        default: ""
+      restoreNugetPackages:
+        type: boolean
+        required: false
+        default: false
+      clean:
+        type: boolean
+        required: false
+        default: false
+      maximumCpuCount:
+        type: boolean
+        required: false
+        default: false
+      createLogFile:
+        type: boolean
+        required: false
+        default: false
+      logFileVerbosity:
+        type: string
+        required: false
+        default: "normal"
+      logProjectEvents:
+        type: boolean
+        required: false
+        default: false
+      msbuildArchitecture:
+        type: string
+        required: false
+        default: "x86"  # Can be 'x86' or 'x64'
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runsOn }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Detect or Use Provided Solution (CMD)
+        id: detect_sln
+        shell: cmd
+        run: |
+          IF NOT "${{ inputs.solution }}"=="" (
+            echo SOLUTION_PATH=${{ inputs.solution }}>> %GITHUB_ENV%
+          ) ELSE (
+            FOR /R %%f IN (*.sln) DO (
+              echo SOLUTION_PATH=%%f>> %GITHUB_ENV%
+              GOTO :done
+            )
+            echo No .sln file found!
+            exit /b 1
+            :done
+          )
+
+      - name: Resolve MSBuild Path (CMD)
+        id: resolve_msbuild
+        shell: cmd
+        run: |
+          SETLOCAL ENABLEEXTENSIONS
+          SET "vsVersion=${{ inputs.vsVersion }}"
+          SET "msbuildPath="
+
+          IF "%vsVersion%"=="17.0" SET "msbuildPath=C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+          IF "%vsVersion%"=="16.0" SET "msbuildPath=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+          IF "%vsVersion%"=="15.0" SET "msbuildPath=C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe"
+          IF "%vsVersion%"=="latest" SET "msbuildPath=C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+
+          IF NOT EXIST "%msbuildPath%" (
+            echo MSBuild path not found for version: %vsVersion%
+            exit /b 1
+          )
+
+          echo MSBUILD_PATH=%msbuildPath%>> %GITHUB_ENV%
+
+      - name: Restore NuGet Packages
+        if: ${{ inputs.restoreNugetPackages }}
+        shell: cmd
+        run: |
+          nuget restore "%SOLUTION_PATH%"
+
+      - name: Build with MSBuild (CMD)
+        shell: cmd
+        run: |
+          SET CMD="%MSBUILD_PATH%" "%SOLUTION_PATH%" /p:Platform="${{ inputs.platform }}" /p:Configuration="${{ inputs.configuration }}" /p:PlatformArchitecture="${{ inputs.msbuildArchitecture }}"
+
+          IF "${{ inputs.clean }}"=="true" (
+            SET CMD=%CMD% /t:Clean,Build
+          ) ELSE (
+            SET CMD=%CMD% /t:Build
+          )
+
+          IF "${{ inputs.maximumCpuCount }}"=="true" (
+            SET CMD=%CMD% /m
+          )
+
+          IF NOT "${{ inputs.msbuildArgs }}"=="" (
+            SET CMD=%CMD% ${{ inputs.msbuildArgs }}
+          )
+
+          IF "${{ inputs.createLogFile }}"=="true" (
+            SET CMD=%CMD% /fl /flp:logfile=msbuild.log;verbosity=${{ inputs.logFileVerbosity }}
+          )
+
+          IF "${{ inputs.logProjectEvents }}"=="true" (
+            SET CMD=%CMD% /clp:PerformanceSummary;ErrorsOnly;WarningsOnly
+          )
+
+          echo Executing: %CMD%
+          CALL %CMD%
