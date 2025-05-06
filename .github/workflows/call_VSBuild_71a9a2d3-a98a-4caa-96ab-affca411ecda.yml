@@ -9,7 +9,7 @@ jobs:
     uses: ./.github/workflows/template_VSBuild_71a9a2d3-a98a-4caa-96ab-affca411ecda.yml
     with:
       runsOn: windows-latest
-      solution: "AspnetCoreMvcFull.sln"         # Optional, or leave blank to auto-detect
+      solution: "./AspnetCoreMvcFull.sln"         # Optional, or leave blank to auto-detect
       vsVersion: "17.0"
       platform: "Any CPU"
       configuration: "Release"
