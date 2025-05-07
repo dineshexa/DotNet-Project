@@ -14,7 +14,7 @@ jobs:
       runsOn: "windows-latest"
       solution: "*/*.sln"
       vsVersion: "latest"
-      # msbuildArgs: "/p:Optimize=true"
+      msbuildArgs: "/p:Optimize=true"
       platform: "Any CPU"
       configuration: "Release"
       clean: true
