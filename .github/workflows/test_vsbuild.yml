@@ -2,8 +2,7 @@ name: Test_VSBuild Main Workflow
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
