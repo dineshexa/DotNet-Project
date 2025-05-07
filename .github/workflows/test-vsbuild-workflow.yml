@@ -65,7 +65,7 @@ on:
         default: ""
 
 jobs:
-  build:
+  VSBuild-Reuseable-Workflow:
     runs-on: ${{ inputs.runsOn }}
 
     steps:
