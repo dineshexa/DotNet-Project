@@ -1,4 +1,4 @@
-name: Test VSBuild Reusable Workflow
+name: Test teamplate VSBuild Reusable Workflow
 
 on:
   workflow_call:

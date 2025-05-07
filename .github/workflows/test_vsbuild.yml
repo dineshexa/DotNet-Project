@@ -1,4 +1,4 @@
-name: Test_VSBuild Main Workflow
+name: Test_VSBuild Workflow
 
 on:
   push:
