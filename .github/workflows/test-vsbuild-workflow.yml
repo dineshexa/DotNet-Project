@@ -10,7 +10,7 @@ on:
       solution:
         required: true
         type: string
-        default: "**/*.sln"
+        default: "*/*.sln"
       vsVersion:
         required: false
         type: string
@@ -79,14 +79,27 @@ jobs:
         with:
           vs-version: ${{ inputs.vsVersion }}
 
+      - name: Locate Solution File
+        id: find_sln
+        run: |
+          $solution = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Filter "*.sln" | Select-Object -ExpandProperty FullName
+          if ($solution) {
+            Write-Output "SOLUTION_PATH=$solution" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "Solution file found: $solution"
+          } else {
+            echo "No solution file found!"
+            exit 1
+          }
+        shell: pwsh
+
       - name: Restore NuGet Packages
-        if: ${{ inputs.restoreNugetPackages }}
-        run: nuget restore "${{ inputs.solution }}"
+        if: ${{ inputs. restoreNugetPackages }}
+        run: nuget restore "%SOLUTION_PATH%"
         shell: cmd
 
       - name: Build Solution with MSBuild
         run: |
-          $vsbuildCmd = "msbuild `"$env:GITHUB_WORKSPACE/${{ inputs.solution }}`" /p:Platform=`"${{ inputs.platform }}`" /p:Configuration=${{ inputs.configuration }}"
+          $vsbuildCmd = "msbuild `"$env:SOLUTION_PATH`" /p:Platform=`"${{ inputs.platform }}`" /p:Configuration=${{ inputs.configuration }}" 
 
           if (${{ inputs.clean }}) {
             $vsbuildCmd += " /t:Clean,Build"
@@ -101,7 +114,7 @@ jobs:
           }
 
           if (${{ inputs.msbuildArchitecture }} -eq "x64") {
-            $vsbuildCmd += " /p:PreferredToolArchitecture=x64"
+            $vsbuildCmd += " /p: PreferredToolArchitecturex64"
           }
 
           if (${{ inputs.createLogFile }}) {
