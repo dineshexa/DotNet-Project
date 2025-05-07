@@ -96,12 +96,13 @@ jobs:
         if: ${{ inputs. restoreNugetPackages }}
         run: nuget restore "%SOLUTION_PATH%"
         shell: cmd
-      
       - name: Build Solution with MSBuild
         run: |
+         
           $vsbuildCmd = "msbuild `"$env:SOLUTION_PATH`" /p:Platform=`"${{ inputs.platform }}`" /p:Configuration=`"${{ inputs.configuration }}`""
       
-          if (${{ inputs.msbuildArgs }}) {
+          # Check if msbuildArgs is provided and append it to the command
+          if (![string]::IsNullOrEmpty("${{ inputs.msbuildArgs }}")) {
             $vsbuildCmd += " ${{ inputs.msbuildArgs }}"
           }
       
@@ -113,7 +114,7 @@ jobs:
             $vsbuildCmd += " /m"
           }
       
-          if (${{ inputs.msbuildArchitecture }} -eq "x64") {
+          if ("${{ inputs.msbuildArchitecture }}" -eq "x64") {
             $vsbuildCmd += " /p:PlatformToolset=x64"
           }
       
@@ -133,3 +134,4 @@ jobs:
           Write-Host "Executing: $vsbuildCmd"
           Invoke-Expression $vsbuildCmd
         shell: pwsh
+
