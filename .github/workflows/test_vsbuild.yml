@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  VSbuild-Template:
     uses: ./.github/workflows/test-vsbuild-workflow.yml
 
     with:
@@ -19,7 +19,7 @@ jobs:
       configuration: "Release"
       clean: true
       maximumCpuCount: true
-      restoreNugetPackages: false
+      restoreNugetPackages: true
       msbuildArchitecture: "x86"
       logProjectEvents: true
       createLogFile: true
