@@ -94,8 +94,10 @@ jobs:
 
       - name: Restore NuGet Packages
         if: ${{ inputs. restoreNugetPackages }}
-        run: nuget restore "%SOLUTION_PATH%"
-        shell: cmd
+        run: |
+          nuget restore "%SOLUTION_PATH%"
+        shell: pwsh
+        
       - name: Build Solution with MSBuild
         run: |
          
@@ -134,4 +136,3 @@ jobs:
           Write-Host "Executing: $vsbuildCmd"
           Invoke-Expression $vsbuildCmd
         shell: pwsh
-
