@@ -14,12 +14,12 @@ jobs:
       runsOn: "windows-latest"
       solution: "*/*.sln"
       vsVersion: "latest"
-      msbuildArgs: "/p:Optimize=true"
+      # msbuildArgs: "/p:Optimize=true"
       platform: "Any CPU"
       configuration: "Release"
       clean: true
       maximumCpuCount: true
-      restoreNugetPackages: true
+      restoreNugetPackages: false
       msbuildArchitecture: "x86"
       logProjectEvents: true
       createLogFile: true
