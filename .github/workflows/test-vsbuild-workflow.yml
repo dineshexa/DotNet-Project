@@ -71,13 +71,34 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+
 
       - name: Setup Visual Studio
         uses: microsoft/setup-msbuild@v1
         with:
           vs-version: ${{ inputs.vsVersion }}
+
+#------------------------------------------------------------------------------------------------------------------------------------------------
+#If you're not using the microsoft/setup-msbuild@v1 action, you need to ensure Visual Studio is already installed on the runner or set up manually in your workflow path,batchfile.
+      # - name: Setup Visual Studio
+      #   run: |
+      #     if ("${{ inputs.vsVersion }}" -eq "latest") {
+      #       Write-Host "Setting up Visual Studio with the latest version."
+      #       # Assuming 'latest' is already installed on the runner
+      #     } elseif ("${{ inputs.vsVersion }}" -eq "17.0") {
+      #       Write-Host "Setting up Visual Studio with version 17.0."
+      #       # Ensure Visual Studio 17.0 is installed and set the environment variables accordingly
+      #       & "C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\Tools\VsDevCmd.bat"
+      #     } elseif ("${{ inputs.vsVersion }}" -eq "16.0") {
+      #       Write-Host "Setting up Visual Studio with version 16.0."
+      #       # Ensure Visual Studio 16.0 is installed and set the environment variables accordingly
+      #       & "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\Tools\VsDevCmd.bat"
+      #     } else {
+      #       Write-Host "Setting up Visual Studio with specified version: ${{ inputs.vsVersion }}"
+      #       # Add logic for other versions if needed
+      #     }
+      #   shell: pwsh
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
       - name: Locate Solution File
         id: find_sln
