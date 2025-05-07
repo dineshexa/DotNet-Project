@@ -96,40 +96,40 @@ jobs:
         if: ${{ inputs. restoreNugetPackages }}
         run: nuget restore "%SOLUTION_PATH%"
         shell: cmd
-
+      
       - name: Build Solution with MSBuild
         run: |
-          $vsbuildCmd = "msbuild `"$env:SOLUTION_PATH`" /p:Platform=`"${{ inputs.platform }}`" /p:Configuration=${{ inputs.configuration }}" 
-
-          if (${{ inputs.clean }}) {
-            $vsbuildCmd += " /t:Clean,Build"
-          }
-
-          if (${{ inputs.maximumCpuCount }}) {
-            $vsbuildCmd += " /m"
-          }
-
+          $vsbuildCmd = "msbuild `"$env:SOLUTION_PATH`" /p:Platform=`"${{ inputs.platform }}`" /p:Configuration=`"${{ inputs.configuration }}`""
+      
           if (${{ inputs.msbuildArgs }}) {
             $vsbuildCmd += " ${{ inputs.msbuildArgs }}"
           }
-
-          if (${{ inputs.msbuildArchitecture }} -eq "x64") {
-            $vsbuildCmd += " /p: PreferredToolArchitecturex64"
+      
+          if (${{ inputs.clean }}) {
+            $vsbuildCmd += " /t:Clean,Build"
           }
-
+      
+          if (${{ inputs.maximumCpuCount }}) {
+            $vsbuildCmd += " /m"
+          }
+      
+          if (${{ inputs.msbuildArchitecture }} -eq "x64") {
+            $vsbuildCmd += " /p:PlatformToolset=x64"
+          }
+      
           if (${{ inputs.createLogFile }}) {
             $logFile = "$env:GITHUB_WORKSPACE/build.log"
             $vsbuildCmd += " /fl /flp:logfile=`"$logFile`";verbosity=${{ inputs.logFileVerbosity }}"
           }
-
+      
           if (${{ inputs.enableDefaultLogger }}) {
             $vsbuildCmd += " /logger:Microsoft.VisualStudio.TraceLogger,Microsoft.Build.Logging"
           }
-
+      
           if (${{ inputs.logProjectEvents }}) {
             $vsbuildCmd += " /clp:PerformanceSummary;ErrorsOnly;WarningsOnly"
           }
-
+      
           Write-Host "Executing: $vsbuildCmd"
           Invoke-Expression $vsbuildCmd
         shell: pwsh
