@@ -12,7 +12,7 @@ jobs:
     with:
       runsOn: "windows-latest"
       solution: "*/*.sln"
-      vsVersion: "latest"
+      vsVersion: "15.0"
       msbuildArgs: "/p:Optimize=true"
       platform: "Any CPU"
       configuration: "Release"
