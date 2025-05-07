@@ -1,0 +1,122 @@
+name: Test VSBuild Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      runsOn:
+        required: true
+        type: string
+        default: "windows-latest"
+      solution:
+        required: true
+        type: string
+        default: "**/*.sln"
+      vsVersion:
+        required: false
+        type: string
+        default: "latest"
+      msbuildArgs:
+        required: false
+        type: string
+        default: ""
+      platform:
+        required: true
+        type: string
+        default: "Any CPU"
+      configuration:
+        required: true
+        type: string
+        default: "Release"
+      clean:
+        required: false
+        type: boolean
+        default: false
+      maximumCpuCount:
+        required: false
+        type: boolean
+        default: false
+      restoreNugetPackages:
+        required: false
+        type: boolean
+        default: false
+      msbuildArchitecture:
+        required: false
+        type: string
+        default: "x86"
+      logProjectEvents:
+        required: false
+        type: boolean
+        default: false
+      createLogFile:
+        required: false
+        type: boolean
+        default: false
+      logFileVerbosity:
+        required: false
+        type: string
+        default: "normal"
+      enableDefaultLogger:
+        required: false
+        type: boolean
+        default: true
+      customVersion:
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runsOn }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Visual Studio
+        uses: microsoft/setup-msbuild@v1
+        with:
+          vs-version: ${{ inputs.vsVersion }}
+
+      - name: Restore NuGet Packages
+        if: ${{ inputs.restoreNugetPackages }}
+        run: nuget restore "${{ inputs.solution }}"
+        shell: cmd
+
+      - name: Build Solution with MSBuild
+        run: |
+          $vsbuildCmd = "msbuild `"$env:GITHUB_WORKSPACE/${{ inputs.solution }}`" /p:Platform=`"${{ inputs.platform }}`" /p:Configuration=${{ inputs.configuration }}"
+
+          if (${{ inputs.clean }}) {
+            $vsbuildCmd += " /t:Clean,Build"
+          }
+
+          if (${{ inputs.maximumCpuCount }}) {
+            $vsbuildCmd += " /m"
+          }
+
+          if (${{ inputs.msbuildArgs }}) {
+            $vsbuildCmd += " ${{ inputs.msbuildArgs }}"
+          }
+
+          if (${{ inputs.msbuildArchitecture }} -eq "x64") {
+            $vsbuildCmd += " /p:PreferredToolArchitecture=x64"
+          }
+
+          if (${{ inputs.createLogFile }}) {
+            $logFile = "$env:GITHUB_WORKSPACE/build.log"
+            $vsbuildCmd += " /fl /flp:logfile=`"$logFile`";verbosity=${{ inputs.logFileVerbosity }}"
+          }
+
+          if (${{ inputs.enableDefaultLogger }}) {
+            $vsbuildCmd += " /logger:Microsoft.VisualStudio.TraceLogger,Microsoft.Build.Logging"
+          }
+
+          if (${{ inputs.logProjectEvents }}) {
+            $vsbuildCmd += " /clp:PerformanceSummary;ErrorsOnly;WarningsOnly"
+          }
+
+          Write-Host "Executing: $vsbuildCmd"
+          Invoke-Expression $vsbuildCmd
+        shell: pwsh
