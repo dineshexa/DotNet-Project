@@ -95,7 +95,7 @@ jobs:
       - name: Restore NuGet Packages
         if: ${{ inputs. restoreNugetPackages }}
         run: |
-          nuget restore "%SOLUTION_PATH%"
+          nuget restore ""$env:SOLUTION_PATH"
         shell: pwsh
         
       - name: Build Solution with MSBuild
