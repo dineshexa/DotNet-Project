@@ -11,7 +11,7 @@ jobs:
     uses: ./.github/workflows/test-vsbuild-workflow.yml
 
     with:
-      runsOn: "windows-latest"
+      runsOn: umb-dk-test #"windows-latest"
       solution: "*/*.sln"
       vsVersion: "latest"
       msbuildArgs: "/p:Optimize=true"
